@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/App.jsx', // Entry point of your application (replace with your actual entry point)
+    entry: './src/App.jsx', // Entry point of your application 
     output: {
         filename: 'bundle.js', // Output bundle file name
         path: path.resolve(__dirname, 'dist'), // Output directory (absolute path)
@@ -24,8 +24,8 @@ module.exports = {
                         loader: 'file-loader', // Use file-loader to handle images
                         options: {
                             name: '[name].[ext]', // Output file name format
-                            outputPath: '/', // Specify where images should be copied to in the output directory
-                            publicPath: '/' // Specify the path for browser access
+                            outputPath: 'images/', // Specify where images should be copied to in the output directory
+                            publicPath: '/images/' // Specify the path for browser access
                         }
                     }
                 ]

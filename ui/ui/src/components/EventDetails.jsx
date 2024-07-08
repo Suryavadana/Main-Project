@@ -26,6 +26,7 @@ const EventDetails = () => {
     const fetchData = () => {
         axios.get('http://localhost:8080/api/events')
             .then(res => {
+                console.log('Fetched data:', res.data); // Log the fetched data
                 setData(res.data); // Set fetched data to state
                 setFilteredData(res.data); // Initially set filteredData to all data
             })
@@ -122,13 +123,33 @@ const EventDetails = () => {
         }
     };
 
-    // Function to convert base64 image string to URL
+   // Function to convert base64 image string to URL
     const base64ToImageUrl = (base64String, mimeType) => {
-        return `${base64String}`;
+     //   return `${base64String}`;
+    if(!base64String) return ''; //Handle case where base64String is not available
+     //console.log('${base64String}');
+      // Construct the data URL
+    const imageUrl = `data:${mimeType};base64,${base64String}`;
+
+    // Log the constructed URL to console
+    console.log('Constructed Image URL:', imageUrl);
+
         return `data:${mimeType};base64,${base64String}`;
 
     };
 
+/*
+const base64ToImageUrl = (base64String) => {
+    try {
+        const mimeType = 'image/jpeg'; // Ensure this matches the MIME type of your image
+        const imageUrl = `data:${mimeType};base64,${base64String}`;
+        console.log('Image URL:', imageUrl); // Log the constructed URL
+        return imageUrl;
+    } catch (error) {
+        console.error('Error constructing image URL:', error);
+        throw error; // Handle error case
+    }
+};*/
     return (
         <div className='container py-5'>
             <div className='card shadow-sm'>
@@ -198,14 +219,21 @@ const EventDetails = () => {
                     </div>
 
                     <div className='row row-cols-1 row-cols-md-2 g-4'>
-                        {filteredData.map((event, index) => (
-                            <div key={index} className='col'>
+                        {filteredData.map((event, index) => {
+                            console.log('Event image actual value', event.eventImage);
+                            console.log('event image mime type', event.imageMimeType);
+                           return ( <div key={index} className='col'>
                                 <div className='card'>
                                     <img
                                         src={base64ToImageUrl(event.eventImage, event.imageMimeType)}
                                         className='card-img-top'
                                         alt={event.eventName}
                                     />
+                                     {/* <img
+                                        src={`http://localhost:8080/api/events/${event.id}/image`}
+                                        className='card-img-top'
+                                        alt={event.eventName}
+                                    /> */}
                                     <div className='card-body'>
                                         <h5 className='card-title'>{event.eventName}</h5>
                                         <p className='card-text'><strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}</p>
@@ -218,7 +246,8 @@ const EventDetails = () => {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        );
+                    })}
                     </div>
 
                     <div className='mt-3'>
