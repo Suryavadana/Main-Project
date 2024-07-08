@@ -4,10 +4,13 @@ import com.example.backend.Models.Event;
 import com.example.backend.Repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,17 +25,18 @@ public class EventController {
         this.eventRepository = eventRepository;
     }
 
-    // Search events by name containing case-insensitive
-    @GetMapping("/search")
-    public List<Event> searchEventsByName(@RequestParam(name = "name") String name) {
-        return eventRepository.findByEventNameContainingIgnoreCase(name);
-    }
-
    // Get all events
     @GetMapping
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
+
+
+    // Search events by name containing case-insensitive
+   @GetMapping("/search")
+   public List<Event> searchEventsByName(@RequestParam(name = "name") String name) {
+       return eventRepository.findByEventNameContainingIgnoreCase(name);
+   }
 
     //Get event by id
     @GetMapping("/{id}")
@@ -56,23 +60,34 @@ public class EventController {
 
     //Update and existing event
     @PutMapping("{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody @Valid Event event)
-    {
+    public ResponseEntity<Event> updateEvent(@PathVariable Long id,
+                                             @RequestBody @Valid Event event ,
+                                             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         //fetch event from database
         Optional<Event> eventOptional = eventRepository.findById(id);  //Retrieves the existing event entity from the database using eventRepository.findById(id)
         // Updates specific fields of the existingEvent entity with values from the event object received in the request body.
-        if (eventOptional.isPresent()) {
-            Event existingEvent = eventOptional.get();
-            existingEvent.setEventName(event.getEventName());
-            existingEvent.setEventDate(event.getEventDate());
-            existingEvent.setEventTime(event.getEventTime());
-            existingEvent.setEventLocation(event.getEventLocation());
-            existingEvent.setDescription(event.getDescription());
-            Event updatedEvent = eventRepository.save(existingEvent); // Saves the updated Event entity in the database.
-            return ResponseEntity.ok(updatedEvent); // Returns the updated Event if the entity exists in the database.
+        if (eventOptional.isPresent( )) {
+            Event existingEvent = eventOptional.get( );
+
+            //Update event fields
+            existingEvent.setEventName(event.getEventName( ));
+            existingEvent.setEventDate(event.getEventDate( ));
+            existingEvent.setEventTime(event.getEventTime( ));
+            existingEvent.setEventLocation(event.getEventLocation( ));
+            existingEvent.setDescription(event.getDescription( ));
+
+            //Handle image upload if provided
+            if (image != null && !image.isEmpty( )) {
+                existingEvent.setEventImage(image.getBytes( ));
+                existingEvent.setImageMimeType(image.getContentType( ));
+            }
+
+            //save updated event including the image
+            Event updatedEvent = eventRepository.save(existingEvent);
+            return ResponseEntity.ok(updatedEvent);
         } else {
-            return ResponseEntity.notFound().build(); //if no event with specified id exists in the database, returns a 404 Not Found response.
-        }
+        return ResponseEntity.notFound().build();
+    }
     }
 
     //Delete event
@@ -87,11 +102,20 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
-    // Default mapping for the root path "/"
-    @GetMapping("/")
-    public ResponseEntity<String> getDefault() {
-        return ResponseEntity.ok("Welcome to the Event API!");
+// Serve event image by id
+@GetMapping("/{id}/image")
+public ResponseEntity<byte[]> getEventImageById(@PathVariable Long id) {
+    Optional<Event> eventOptional = eventRepository.findById(id);
+    if (eventOptional.isPresent()) {
+        Event event = eventOptional.get();
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(event.getImageMimeType()))
+                .body(event.getEventImage());
+    } else {
+        return ResponseEntity.notFound().build();
     }
+}
+
 
 // /api/events/search?name=YourEventName
 // /api/events

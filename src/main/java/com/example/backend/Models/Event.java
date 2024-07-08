@@ -34,27 +34,38 @@ public class Event {
     @Size(min=5, message = "Description must be at least 5 characters.")
     private String description;
 
-    @Lob // Large Object Byte for storing binary data like images in database.
-    @Size(max = 1048576) // 1 MB size limit
-    private byte[] eventImage;   // Stores image data in byte array format.
+    @NotBlank
+    private String eventCategory;
+
+    @NotNull
+    private double eventPrice;
+
+
+
+    // Large Object Byte for storing binary data like images in database.
+    // 1 MB size limit
+   // private String eventImage;   // Stores image data in byte array format.
+
+    @Lob
+    private byte[]eventImage;
     private String imageMimeType;  // Stores MIME type of image. image/jpeg , png . gif etc.
 
     public Event(){}
 
-    public Event(String eventName, Date eventDate, LocalTime eventTime, String eventLocation, String description) {
-        this.eventName = eventName;
-        this.eventDate = eventDate;
-        this.eventTime = eventTime;
-        this.eventLocation = eventLocation;
-        this.description = description;
-    }
+//    public Event(String eventName, Date eventDate, LocalTime eventTime, String eventLocation, String description, String eventCategory, double eventPrice, @Size(max = 1048576) byte[] eventImage, String imageMimeType) {
+//        this.eventName = eventName;
+//        this.eventDate = eventDate;
+//        this.eventTime = eventTime;
+//        this.eventLocation = eventLocation;
+//        this.description = description;
+//        this.eventCategory = eventCategory;
+//        this.eventPrice = eventPrice;
+//        this.eventImage = eventImage;
+//        this.imageMimeType = imageMimeType;
+//    }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getEventName() {
@@ -97,14 +108,37 @@ public class Event {
         this.description = description;
     }
 
+    public String getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(String eventCategory) {
+        this.eventCategory = eventCategory;
+    }
+
+    public double getEventPrice() {
+        return eventPrice;
+    }
+
+    public void setEventPrice(double eventPrice) {
+        this.eventPrice = eventPrice;
+    }
+
     public byte[] getEventImage() {
         return eventImage;
     }
 
     public void setEventImage(byte[] eventImage) {
         this.eventImage = eventImage;
-        this.imageMimeType = imageMimeType;
     }
+
+//    public String getEventImage() {
+//        return eventImage;
+//    }
+//
+//    public void setEventImage(String eventImage) {
+//        this.eventImage = eventImage;
+//    }
 
     public String getImageMimeType() {
         return imageMimeType;
@@ -113,12 +147,4 @@ public class Event {
     public void setImageMimeType(String imageMimeType) {
         this.imageMimeType = imageMimeType;
     }
-
-    // Utility method to determine MIME type
-    private String determineMimeType(byte[] imageData) {
-        // Implement logic to determine and validate MIME type
-        // Example: Apache Tika library or manual detection based on file headers
-        return "image/jpeg"; // Example result; implement actual detection
-    }
-
 }
