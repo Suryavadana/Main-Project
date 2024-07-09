@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,7 +79,7 @@ public class EventController {
 
             //Handle image upload if provided
             if (image != null && !image.isEmpty( )) {
-                existingEvent.setEventImage(image.getBytes( ));
+                existingEvent.setEventImage(Arrays.toString(image.getBytes( )));
                 existingEvent.setImageMimeType(image.getContentType( ));
             }
 
@@ -110,7 +111,7 @@ public ResponseEntity<byte[]> getEventImageById(@PathVariable Long id) {
         Event event = eventOptional.get();
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(event.getImageMimeType()))
-                .body(event.getEventImage());
+                .body(event.getEventImage().getBytes( ));
     } else {
         return ResponseEntity.notFound().build();
     }

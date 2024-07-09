@@ -24,6 +24,8 @@
     width: 100%;
     height: auto;
     object-fit: cover; /* Ensure images maintain aspect ratio and cover the entire space */
+    max-width: 100%; /* Ensure image does not exceed the width of its container */
+    max-height: 300px; /* Set a maximum height to control image size */
 }
 
 /* Style for card body */
@@ -55,6 +57,8 @@
 .alert {
     margin-bottom: 15px;
 }
+
+/* Additional styles for headings */
 h1 {
     text-align: center; /* Center align the heading */
     color: blue; /* Set the color of the heading to blue */

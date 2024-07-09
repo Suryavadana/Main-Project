@@ -47,7 +47,7 @@ public class Event {
    // private String eventImage;   // Stores image data in byte array format.
 
     @Lob
-    private byte[]eventImage;
+    private String eventImage;
     private String imageMimeType;  // Stores MIME type of image. image/jpeg , png . gif etc.
 
     public Event(){}
@@ -124,21 +124,21 @@ public class Event {
         this.eventPrice = eventPrice;
     }
 
-    public byte[] getEventImage() {
-        return eventImage;
-    }
-
-    public void setEventImage(byte[] eventImage) {
-        this.eventImage = eventImage;
-    }
-
-//    public String getEventImage() {
+//    public byte[] getEventImage() {
 //        return eventImage;
 //    }
 //
-//    public void setEventImage(String eventImage) {
+//    public void setEventImage(byte[] eventImage) {
 //        this.eventImage = eventImage;
 //    }
+
+    public String getEventImage() {
+        return eventImage;
+    }
+
+    public void setEventImage(String eventImage) {
+        this.eventImage = eventImage;
+    }
 
     public String getImageMimeType() {
         return imageMimeType;
