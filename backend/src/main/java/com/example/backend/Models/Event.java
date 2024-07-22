@@ -1,9 +1,6 @@
 package com.example.backend.Models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -46,7 +43,8 @@ public class Event {
     // 1 MB size limit
    // private String eventImage;   // Stores image data in byte array format.
 
-    @Lob
+    //@Size(max = 1048576)
+    @Column(columnDefinition = "LONGTEXT")
     private String eventImage;
     private String imageMimeType;  // Stores MIME type of image. image/jpeg , png . gif etc.
 
