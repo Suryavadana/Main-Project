@@ -20,10 +20,10 @@ import javax.validation.Valid;
 
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
 
     @Autowired
     public AuthController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -31,15 +31,15 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<User> getUserFromSession(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-    }
+//    @GetMapping("/user")
+//    public ResponseEntity<User> getUserFromSession(HttpSession session) {
+//        User user = (User) session.getAttribute("user");
+//        if (user != null) {
+//            return ResponseEntity.ok(user);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+//        }
+//    }
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@Valid @RequestBody RegistrationFormDTO registrationForm, HttpSession session) {
@@ -88,9 +88,6 @@ public class AuthController {
         return ResponseEntity.ok("Logged out successfully");
     }
 }
-
-
-
 
 
 //User Endpoint (GET):
