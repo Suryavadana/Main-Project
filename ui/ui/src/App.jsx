@@ -1,60 +1,67 @@
-// import React from 'react'
-// import 'bootstrap/dist/css/bootstrap.min.css'
+// import React from 'react';
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+
 // import EventDetails from './components/EventDetails';
 // import RegistrationForm from './components/RegistrationForm';
 // import LoginForm from './components/LoginForm';
-// import { BrowserRouter, Routes, Route } from 'react-router-dom';
+// import Events from './components/Events';
+// import Error404 from './components/Error404'; // Import your Error404 component
+// import ProtectedComponent from './components/ProtectedComponent';
 
+// const App = () => {
+//     return (
+        
+//         <Router>
+//             <Routes>
+//                 {/* Homepage */}
+//                 <Route path="/" element={<EventDetails />} />
+//                 {/* Registration Form */}
+//                 <Route path="/register" element={<RegistrationForm />} />
+//                 {/* Login Form */}
+//                 <Route path="/login" element={<LoginForm />} />
+//                 {/* Events page */}
+//                 <Route path="/events" element={<Events />} />
+//                 {/* Wildcard Route for 404 Page */}
+//                 <Route path="*" element={<Error404 />} />
+//             </Routes>
+//         </Router>
+        
+//     );
+// };
 
-// function App() {
-  
-
-//   return (
-//     <>
-//       <BrowserRouter>
-//       <Routes>
-//         <Route path="/" element={<RegistrationForm />} />
-//         <Route path="/login" element={<LoginForm />} />
-//         <Route path="*" element={<EventDetails />} />
-//       </Routes>
-//     </BrowserRouter>
-//     </>
-//   )
-// }
-// export default App   
-
-
+// export default App;
+// App.js
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { AuthProvider } from './auth/AuthContext';  // Import AuthProvider
+
+import EventDetails from './components/EventDetails';
 import RegistrationForm from './components/RegistrationForm';
 import LoginForm from './components/LoginForm';
-import EventDetails from './components/EventDetails';
-import NavBar from './components/NavBar';
-import { AuthProvider, useAuth } from './auth/AuthContext';
-import ProtectedComponent from './components/ProtectedComponent';
-import LoginStatus from './components/LoginStatus';
+import Events from './components/Events';
+import Error404 from './components/Error404';  // Import your Error404 component
 
-function ProtectedRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
-}
-
-function App() {
+const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <NavBar />
-        <LoginStatus /> {/* Add LoginStatus component to display login status */}
+    <AuthProvider> {/* Wrap your entire app with AuthProvider */}
+      <Router>
         <Routes>
-          <Route path="/" element={<RegistrationForm />} />
+          {/* Homepage */}
+          <Route path="/" element={<EventDetails />} />
+          {/* Registration Form */}
+          <Route path="/register" element={<RegistrationForm />} />
+          {/* Login Form */}
           <Route path="/login" element={<LoginForm />} />
-          <Route path="/protected/*" element={<ProtectedRoute><ProtectedComponent /></ProtectedRoute>} />
-          <Route path="/eventDetails" element={<EventDetails />} /> {/* Specific route for EventDetails */}
-          <Route path="*" element={<Navigate to="/" />} /> {/* Default fallback route */}
+          {/* Events page */}
+          <Route path="/events" element={<Events />} />
+          {/* Wildcard Route for 404 Page */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
-}
+};
 
 export default App;

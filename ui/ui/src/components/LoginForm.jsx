@@ -1,105 +1,101 @@
 // import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
 
 // const LoginForm = () => {
-//   const [username, setUsername] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [message, setMessage] = useState('');
+//     const [form, setForm] = useState({ username: '', password: '' });
+//     const [message, setMessage] = useState('');
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
+//     const navigate = useNavigate();
 
-//     try {
-//       const response = await fetch('http://localhost:8080/auth/login', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ username, password }),
-//       });
+//     const handleChange = (e) => {
+//         setForm({ ...form, [e.target.name]: e.target.value });
+//     };
 
-//       if (response.ok) {
-//         const data = await response.json();
-//         localStorage.setItem('token', data.token); // Store token in localStorage
-//         setMessage('Login successful');
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
 
-//         // Example: Fetching data from /auth/users endpoint with token
-//         const usersResponse = await fetch('http://localhost:8080/auth/users', {
-//           headers: {
-//             Authorization: `Bearer ${data.token}`, // Include token in Authorization header
-//           },
-//         });
+//         try {
+//             const response = await axios.post('http://localhost:8080/auth/login', form, {
+//                 withCredentials: true // Ensure credentials are sent with the request
+//             });
 
-//         if (usersResponse.ok) {
-//           const usersData = await usersResponse.json();
-//           console.log('Users data:', usersData);
-//           // Proceed with displaying users data or further actions
-//         } else {
-//           console.error('Failed to fetch users data:', usersResponse.status);
-//           setMessage('Failed to fetch users data');
+//             if (response.status === 200) {
+//                 // Assuming successful login logic (update state, set tokens, etc.)
+//                 setMessage('Login successful');
+//                 navigate('/events'); // Redirect to '/events' after successful login
+//             } else {
+//                 setMessage('Login failed'); // Handle other status codes as needed
+//             }
+//         } catch (error) {
+//             if (error.response) {
+//                 // The request was made and the server responded with a status code outside of 2xx range
+//                 if (error.response.status === 401) {
+//                     setMessage('Invalid username or password. Please try again.');
+//                 } else if (error.response.status === 500) {
+//                     setMessage('Internal server error. Please try again later.');
+//                 } else {
+//                     setMessage('Error: ' + error.response.data.message); // Display server error message if available
+//                 }
+//             } else if (error.request) {
+//                 // The request was made but no response was received
+//                 setMessage('No response from server. Please try again later.');
+//             } else {
+//                 // An unexpected error occurred
+//                 setMessage('An error occurred. Please try again.'); // Generic error message
+//             }
 //         }
-//       } else {
-//         const data = await response.json();
-//         setMessage(data.message || 'Login failed');
-//       }
-//     } catch (error) {
-//       console.error('Error during login:', error);
-//       setMessage('Failed to fetch');
-//     }
-//   };
+//     };
 
-//   return (
-//     <div className="container mt-5">
-//       <div className="card">
-//         <div className="card-body">
-//           <h2 className="card-title">Login Form</h2>
-//           <form onSubmit={handleSubmit}>
-//             <div className="mb-3">
-//               <label htmlFor="username" className="form-label">Username:</label>
-//               <input
-//                 type="text"
-//                 className="form-control"
-//                 id="username"
-//                 value={username}
-//                 onChange={(e) => setUsername(e.target.value)}
-//                 required
-//               />
+//     return (
+//         <div className="container mt-5">
+//             <div className="card">
+//                 <div className="card-body">
+//                     <h2 className="card-title">Login Form</h2>
+//                     <form onSubmit={handleSubmit}>
+//                         <div className="mb-3">
+//                             <label className="form-label">Username:</label>
+//                             <input
+//                                 type="text"
+//                                 className="form-control"
+//                                 name="username"
+//                                 value={form.username}
+//                                 onChange={handleChange}
+//                                 required
+//                             />
+//                         </div>
+//                         <div className="mb-3">
+//                             <label className="form-label">Password:</label>
+//                             <input
+//                                 type="password"
+//                                 className="form-control"
+//                                 name="password"
+//                                 value={form.password}
+//                                 onChange={handleChange}
+//                                 required
+//                             />
+//                         </div>
+//                         <button type="submit" className="btn btn-primary">Login</button>
+//                     </form>
+//                     {message && <p className="mt-3 text-danger">{message}</p>}
+//                 </div>
 //             </div>
-//             <div className="mb-3">
-//               <label htmlFor="password" className="form-label">Password:</label>
-//               <input
-//                 type="password"
-//                 className="form-control"
-//                 id="password"
-//                 value={password}
-//                 onChange={(e) => setPassword(e.target.value)}
-//                 required
-//               />
-//             </div>
-//             <button type="submit" className="btn btn-primary">Login</button>
-//           </form>
-//           {message && <p className="mt-3 text-danger">{message}</p>}
 //         </div>
-//       </div>
-//     </div>
-//   );
+//     );
 // };
 
 // export default LoginForm;
-
-
+// components/LoginForm.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';  // Import useAuth hook
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
-import { useAuth } from '../auth/AuthContext';
-import '../styles/LoginForm.css'; // Import CSS file for styling
-
-axios.defaults.withCredentials = true;
 
 const LoginForm = () => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [message, setMessage] = useState('');
-  const { login } = useAuth();
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const { login } = useAuth();  // Use useAuth hook to access login function
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -107,31 +103,48 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:8080/login', form);
-      setMessage('Login successful');
-      login(response.data); // Update with actual user data
 
-      // Navigate to 'eventDetails' page after successful login
-      navigate('/eventDetails');
+    try {
+      await login(form);  // Call login function from useAuth
+      navigate('/events');  // Redirect to events page after successful login
     } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data);
-      } else {
-        setMessage('An error occurred. Please try again.');
-      }
+      setMessage(error.response.data || 'An error occurred. Please try again.');  // Handle login errors
     }
   };
 
   return (
-    <div className="login-form-container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input type="text" name="username" placeholder="Username" onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
-        <button type="submit">Login</button>
-      </form>
-      {message && <p className="message">{message}</p>}
+    <div className="container mt-5">
+      <div className="card">
+        <div className="card-body">
+          <h2 className="card-title">Login Form</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Username:</label>
+              <input
+                type="text"
+                className="form-control"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Password:</label>
+              <input
+                type="password"
+                className="form-control"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary">Login</button>
+          </form>
+          {message && <p className="mt-3 text-danger">{message}</p>}
+        </div>
+      </div>
     </div>
   );
 };
