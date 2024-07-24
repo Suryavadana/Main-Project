@@ -1,35 +1,3 @@
-// // useAuth.js
-// import { createContext, useContext, useState } from 'react';
-
-// const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   const [user, setUser] = useState(null); // Example state for authenticated user
-
-//   const login = (userData) => {
-//     // Logic to authenticate user (e.g., send login request to backend)
-//     setUser(userData); // Example: Set user data upon successful login
-//   };
-
-//   const logout = () => {
-//     // Logic to log out user (e.g., clear session, remove tokens)
-//     setUser(null); // Example: Clear user data upon logout
-//   };
-  
-
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   return useContext(AuthContext);
-// };
-
-// auth/AuthContext.js
-// useAuth.js
 import { createContext, useContext, useState } from 'react';
 import axios from 'axios';
 

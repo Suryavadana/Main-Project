@@ -1,12 +1,14 @@
-// components/RegistrationForm.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext'; // Import useAuth hook
+import axios from 'axios';
+import { useAuth } from '../auth/AuthContext';
+
+axios.defaults.withCredentials = true;
 
 const RegistrationForm = () => {
   const [form, setForm] = useState({ username: '', password: '', verifyPassword: '' });
   const [message, setMessage] = useState('');
-  const { register } = useAuth(); // Use useAuth hook to access register function
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,15 +26,13 @@ const RegistrationForm = () => {
     }
 
     try {
-      await register({ username, password }); // Call register function from useAuth
+      const response = await axios.post('http://localhost:8080/auth/register', form);
       setMessage('User registered successfully');
+      login(response.data); // Assuming this updates authentication state
       navigate('/login'); // Redirect to login page after successful registration
     } catch (error) {
-      console.error('Registration error:', error);
       if (error.response) {
-        setMessage(error.response.data || 'An error occurred. Please try again.');
-      } else if (error.request) {
-        setMessage('No response received from server. Please try again later.');
+        setMessage(error.response.data);
       } else {
         setMessage('An error occurred. Please try again.');
       }

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook for navigation
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Events.css';
 
-const Events= () => {
+const Events = () => {
     const [data, setData] = useState([]); // State to store fetched event data
     const [filteredData, setFilteredData] = useState([]); // State to store filtered event data
     const [error, setError] = useState(null); // State to handle errors during data fetching
@@ -16,6 +17,8 @@ const Events= () => {
         minPrice: '',
         maxPrice: ''
     });
+
+    const navigate = useNavigate(); // Initialize useNavigate hook for navigation
 
     // Fetch data from API on initial component mount
     useEffect(() => {
@@ -135,6 +138,12 @@ const Events= () => {
         return imageUrl;
     };
 
+    // Function to handle logout
+    const handleLogout = () => {
+        // Perform any necessary logout actions (e.g., clearing tokens, session data, etc.)
+        navigate('/eventdetails'); // Replace '/eventdetails' with the actual path of EventDetails.jsx
+    };
+
     // Function to fetch and update approval status
     const fetchAndUpdateApprovalStatus = (eventId) => {
         // Assuming you have an endpoint to update approval status, e.g., PUT /api/events/:id/approve
@@ -158,15 +167,9 @@ const Events= () => {
                     {error && <div className="alert alert-danger">{error}</div>}
                     {!data.length && !error && <div className="alert alert-info">Loading...</div>}
 
-                    <div className='mb-3'>
+                    <div className='mb-3 d-flex justify-content-between align-items-center'>
                         <h1 className='text-primary'>Event Finder</h1>
-                        <input
-                            type='text'
-                            className='form-control'
-                            placeholder='Search events...'
-                            value={searchTerm}
-                            onChange={handleSearch}
-                        />
+                        <button className='btn btn-outline-primary' onClick={handleLogout}>Logout</button>
                     </div>
 
                     <div className='row mb-3'>

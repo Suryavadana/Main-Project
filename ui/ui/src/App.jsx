@@ -1,67 +1,36 @@
-// import React from 'react';
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-
-// import EventDetails from './components/EventDetails';
-// import RegistrationForm from './components/RegistrationForm';
-// import LoginForm from './components/LoginForm';
-// import Events from './components/Events';
-// import Error404 from './components/Error404'; // Import your Error404 component
-// import ProtectedComponent from './components/ProtectedComponent';
-
-// const App = () => {
-//     return (
-        
-//         <Router>
-//             <Routes>
-//                 {/* Homepage */}
-//                 <Route path="/" element={<EventDetails />} />
-//                 {/* Registration Form */}
-//                 <Route path="/register" element={<RegistrationForm />} />
-//                 {/* Login Form */}
-//                 <Route path="/login" element={<LoginForm />} />
-//                 {/* Events page */}
-//                 <Route path="/events" element={<Events />} />
-//                 {/* Wildcard Route for 404 Page */}
-//                 <Route path="*" element={<Error404 />} />
-//             </Routes>
-//         </Router>
-        
-//     );
-// };
-
-// export default App;
-// App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { AuthProvider } from './auth/AuthContext';  // Import AuthProvider
-
-import EventDetails from './components/EventDetails';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import RegistrationForm from './components/RegistrationForm';
 import LoginForm from './components/LoginForm';
-import Events from './components/Events';
-import Error404 from './components/Error404';  // Import your Error404 component
+import EventDetails from './components/EventDetails';
 
-const App = () => {
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import ProtectedComponent from './components/ProtectedComponent';
+import LoginStatus from './components/LoginStatus';
+import Events from './components/Events'; // Ensure Events component is imported
+
+function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+}
+
+function App() {
   return (
-    <AuthProvider> {/* Wrap your entire app with AuthProvider */}
+    <AuthProvider>
       <Router>
+        
+        <LoginStatus /> {/* Display login status */}
         <Routes>
-          {/* Homepage */}
-          <Route path="/" element={<EventDetails />} />
-          {/* Registration Form */}
+          <Route path="/" element={<EventDetails />} /> {/* Specific route for EventDetails */}
           <Route path="/register" element={<RegistrationForm />} />
-          {/* Login Form */}
           <Route path="/login" element={<LoginForm />} />
-          {/* Events page */}
           <Route path="/events" element={<Events />} />
-          {/* Wildcard Route for 404 Page */}
-          <Route path="*" element={<Error404 />} />
+          <Route path="/protected/*" element={<ProtectedRoute><ProtectedComponent /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" />} /> {/* Default fallback route */}
         </Routes>
       </Router>
     </AuthProvider>
   );
-};
+}
 
 export default App;
