@@ -1,7 +1,7 @@
+// LoginForm.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';  // Import useAuth hook
-import axios from 'axios';
 
 const LoginForm = () => {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -20,7 +20,7 @@ const LoginForm = () => {
       await login(form);  // Call login function from useAuth
       navigate('/events');  // Redirect to events page after successful login
     } catch (error) {
-      setMessage(error.response.data || 'An error occurred. Please try again.');  // Handle login errors
+      setMessage(error.response?.data || 'An error occurred. Please try again.');  // Handle login errors
     }
   };
 

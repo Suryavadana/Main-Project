@@ -1,38 +1,48 @@
-import { createContext, useContext, useState } from 'react';
+// auth/AuthContext.js
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
 
+export const useAuth = () => useContext(AuthContext);
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Example state for authenticated user
+  const [user, setUser] = useState(null);
 
-  const login = (userData) => {
-    // Logic to authenticate user (e.g., send login request to backend)
-    setUser(userData); // Example: Set user data upon successful login
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/user');
+        setUser(response.data);
+      } catch (error) {
+        setUser(null);
+      }
+    };
 
-  const register = async ({ username, password }) => {
+    fetchUser();
+  }, []);
+
+  const login = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:8080/auth/register', { username, password });
-      setUser(response.data); // Example: Set user data upon successful registration
-      return response.data; // Return response data (assuming it contains user information)
+      await axios.post('http://localhost:8080/auth/login', userData);
+      setUser(userData);
     } catch (error) {
-      throw error; // Forward error for handling in RegistrationForm component
+      throw error; // Let the caller handle errors
     }
   };
 
-  const logout = () => {
-    // Logic to log out user (e.g., clear session, remove tokens)
-    setUser(null); // Example: Clear user data upon logout
+  const logout = async () => {
+    try {
+      await axios.post('http://localhost:8080/auth/logout');
+      setUser(null);
+    } catch (error) {
+      throw error; // Let the caller handle errors
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };
