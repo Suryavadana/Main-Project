@@ -1,18 +1,14 @@
 package com.example.backend.Controllers;
 
 
-
 import com.example.backend.Models.DTO.LoginFormDTO;
 import com.example.backend.Models.DTO.RegistrationFormDTO;
 import com.example.backend.Models.User;
 import com.example.backend.Repositories.UserRepository;
 import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,15 +27,15 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-//    @GetMapping("/user")
-//    public ResponseEntity<User> getUserFromSession(HttpSession session) {
-//        User user = (User) session.getAttribute("user");
-//        if (user != null) {
-//            return ResponseEntity.ok(user);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-//        }
-//    }
+    @GetMapping("/user")
+    public ResponseEntity<User> getUserFromSession(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@Valid @RequestBody RegistrationFormDTO registrationForm, HttpSession session) {
@@ -89,16 +85,15 @@ public class AuthController {
     }
 }
 
-
 //User Endpoint (GET):
 //
-//URL: http://localhost:8080/auth/user
+//URL: http://localhost:8080/user
 //Method: GET
 //Register Endpoint (POST):
 //
-//URL: http://localhost:8080/auth/register
+//URL: http://localhost:8080/register
 //Method: POST
 //Login Endpoint (POST):
 //
-//URL: http://localhost:8080/auth/login
+//URL: http://localhost:8080/login
 //Method: POST

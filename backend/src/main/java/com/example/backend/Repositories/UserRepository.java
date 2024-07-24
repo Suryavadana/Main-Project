@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByUsername(String username);
-    <S extends User> S save(S user);
+//    <S extends User> S save(S user);
 }
