@@ -12,6 +12,8 @@ public class RegistrationFormDTO extends LoginFormDTO {
         this.verifyPassword = verifyPassword;
     }
 
+    public void setToken(String token) {
+    }
 }
 
 
