@@ -1,0 +1,61 @@
+.event-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.event-form-container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.event-form-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.event-form-container label {
+  margin-bottom: 10px;
+}
+
+.event-form-container input[type='text'],
+.event-form-container input[type='date'],
+.event-form-container input[type='time'],
+.event-form-container input[type='number'],
+.event-form-container textarea,
+.event-form-container button,
+.event-form-container input[type='file'] {
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  width: 100%; /* Make inputs and textarea fill container width */
+}
+
+.event-form-container input[type='file'] {
+  margin-bottom: 20px;
+}
+
+.event-form-container button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.event-form-container button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+  text-align: center;
+}

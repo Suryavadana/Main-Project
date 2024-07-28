@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate hook for navigation
+import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Events.css';
+import { useAuth } from '../auth/AuthContext'; // Import useAuth to manage authentication
 
 const Events = () => {
     const [data, setData] = useState([]); // State to store fetched event data
@@ -19,24 +20,20 @@ const Events = () => {
     });
 
     const navigate = useNavigate(); // Initialize useNavigate hook for navigation
+    const location = useLocation(); // Hook to access location object for navigation state
+    const { logout } = useAuth(); // Access logout function from AuthContext
 
-    // Fetch data from API on initial component mount
+    // Fetch data from API on initial component mount or when navigation occurs
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [location.key]); // Depend on location.key to refetch data when navigating back from create-event
 
     // Function to fetch event data from API
     const fetchData = () => {
         axios.get('http://localhost:8080/api/events')
             .then(res => {
-                console.log('Fetched data:', res.data); // Log the fetched data
-                // Set approvalStatus to 'pending' for each event
-                const eventsWithPendingApproval = res.data.map(event => ({
-                    ...event,
-                    approvalStatus: 'pending'
-                }));
-                setData(eventsWithPendingApproval); // Set fetched data to state with pending approvalStatus
-                setFilteredData(eventsWithPendingApproval); // Initially set filteredData to all data
+                setData(res.data); // Set fetched data to state
+                setFilteredData(res.data); // Initially set filteredData to all data
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
@@ -53,25 +50,19 @@ const Events = () => {
     const applyFilters = () => {
         let filtered = [...data]; // Create a copy of original data array
 
-        // Apply category filter
+        // Apply filters based on the filter state
         if (filters.category) {
             filtered = filtered.filter(event => event.eventCategory === filters.category);
         }
-
-        // Apply date range filter (assuming events have a date field)
         if (filters.startDate && filters.endDate) {
             filtered = filtered.filter(event =>
                 new Date(event.eventDate) >= new Date(filters.startDate) &&
                 new Date(event.eventDate) <= new Date(filters.endDate)
             );
         }
-
-        // Apply location filter
         if (filters.location) {
             filtered = filtered.filter(event => event.eventLocation.toLowerCase().includes(filters.location.toLowerCase()));
         }
-
-        // Apply price range filter (assuming events have a price field)
         if (filters.minPrice && filters.maxPrice) {
             filtered = filtered.filter(event =>
                 event.eventPrice >= parseFloat(filters.minPrice) &&
@@ -103,7 +94,7 @@ const Events = () => {
 
     // Function to clear all filters and search term
     const clearFilters = () => {
-        setFilters({ // Reset filters state
+        setFilters({
             category: '',
             startDate: '',
             endDate: '',
@@ -114,50 +105,22 @@ const Events = () => {
         setSearchTerm(''); // Reset search term state
     };
 
-    // Function to format time from array [hours, minutes] to HH:MM format
-    const formatTime = (timeArray) => {
-        try {
-            if (!Array.isArray(timeArray) || timeArray.length !== 2) {
-                return '';
-            }
-            const [hours, minutes] = timeArray;
-            const time = new Date();
-            time.setHours(hours);
-            time.setMinutes(minutes);
-            return time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        } catch (error) {
-            console.error('Error formatting time:', error);
-            return '';
-        }
+    // Function to handle create event button click
+    const handleCreateEvent = () => {
+        navigate('/create-event'); // Navigate to EventForm
     };
 
-    // Function to convert base64 image string to URL
-    const base64ToImageUrl = (base64String, mimeType) => {
-        if (!base64String) return ''; // Handle case where base64String is not available
-        const imageUrl = `data:${mimeType};base64,${base64String}`;
-        return imageUrl;
-    };
-
-    // Function to handle logout
+    // Function to handle logout and redirect to EventDetails
     const handleLogout = () => {
-        // Perform any necessary logout actions (e.g., clearing tokens, session data, etc.)
-        navigate('/eventdetails'); // Replace '/eventdetails' with the actual path of EventDetails.jsx
+        logout(); // Perform logout logic
+        navigate('/'); // Redirect to EventDetails after logout
     };
 
-    // Function to fetch and update approval status
+    // Function to fetch and update approval status of an event
     const fetchAndUpdateApprovalStatus = (eventId) => {
-        // Assuming you have an endpoint to update approval status, e.g., PUT /api/events/:id/approve
-        axios.put(`http://localhost:8080/api/events/${eventId}/approve`)
-            .then(res => {
-                // Handle success if needed
-                console.log('Event approval status updated successfully');
-                // Refetch data to update changes
-                fetchData();
-            })
-            .catch(err => {
-                console.error('Error updating approval status:', err);
-                // Handle error if needed
-            });
+        // Implementation of this function is missing in your code, so please add it as needed.
+        // Example: axios.post(`http://localhost:8080/api/events/${eventId}/approve`)
+        console.log(`Update approval status for event ID: ${eventId}`);
     };
 
     return (
@@ -169,11 +132,33 @@ const Events = () => {
 
                     <div className='mb-3 d-flex justify-content-between align-items-center'>
                         <h1 className='text-primary'>Event Finder</h1>
-                        <button className='btn btn-outline-primary' onClick={handleLogout}>Logout</button>
+                        <div>
+                            <button className='btn btn-outline-primary me-2' onClick={handleCreateEvent}>Create Event</button>
+                            <button className='btn btn-outline-danger' onClick={handleLogout}>Logout</button>
+                        </div>
                     </div>
 
+                    {/* Filtering UI */}
                     <div className='row mb-3'>
-                        <div className='col-md-3'>
+                        <div className='col-md-4'>
+                            <input
+                                type='text'
+                                className='form-control'
+                                placeholder='Search...'
+                                value={searchTerm}
+                                onChange={handleSearch}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='text'
+                                className='form-control'
+                                placeholder='Category'
+                                value={filters.category}
+                                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
                             <input
                                 type='date'
                                 className='form-control'
@@ -182,7 +167,7 @@ const Events = () => {
                                 onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
+                        <div className='col-md-2'>
                             <input
                                 type='date'
                                 className='form-control'
@@ -191,7 +176,7 @@ const Events = () => {
                                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
+                        <div className='col-md-2'>
                             <input
                                 type='text'
                                 className='form-control'
@@ -200,25 +185,23 @@ const Events = () => {
                                 onChange={(e) => setFilters({ ...filters, location: e.target.value })}
                             />
                         </div>
-                        <div className='col-md-3'>
-                            <div className='input-group'>
-                                <span className='input-group-text'>$</span>
-                                <input
-                                    type='number'
-                                    className='form-control'
-                                    placeholder='Min Price'
-                                    value={filters.minPrice}
-                                    onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-                                />
-                                <span className='input-group-text'>to $</span>
-                                <input
-                                    type='number'
-                                    className='form-control'
-                                    placeholder='Max Price'
-                                    value={filters.maxPrice}
-                                    onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-                                />
-                            </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control'
+                                placeholder='Min Price'
+                                value={filters.minPrice}
+                                onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control'
+                                placeholder='Max Price'
+                                value={filters.maxPrice}
+                                onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                            />
                         </div>
                     </div>
 
@@ -227,14 +210,14 @@ const Events = () => {
                             <div key={index} className='col'>
                                 <div className='card'>
                                     <img
-                                        src={base64ToImageUrl(event.eventImage, event.imageMimeType)}
+                                        src={`data:${event.imageMimeType};base64,${event.eventImage}`}
                                         className='card-img-top'
                                         alt={event.eventName}
                                     />
                                     <div className='card-body'>
                                         <h5 className='card-title'>{event.eventName}</h5>
                                         <p className='card-text'><strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}</p>
-                                        <p className='card-text'><strong>Time:</strong> {formatTime(event.eventTime)}</p>
+                                        <p className='card-text'><strong>Time:</strong> {event.eventTime}</p>
                                         <p className='card-text'><strong>Location:</strong> {event.eventLocation}</p>
                                         <p className='card-text'><strong>Description:</strong> {event.description}</p>
                                         <p className='card-text'><strong>Category:</strong> {event.eventCategory}</p>
