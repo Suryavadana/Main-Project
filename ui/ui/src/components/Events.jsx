@@ -3,14 +3,14 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Events.css';
-import { useAuth } from '../auth/AuthContext'; // Import useAuth to manage authentication
+import { useAuth } from '../auth/AuthContext';
 
 const Events = () => {
-    const [data, setData] = useState([]); // State to store fetched event data
-    const [filteredData, setFilteredData] = useState([]); // State to store filtered event data
-    const [error, setError] = useState(null); // State to handle errors during data fetching
-    const [searchTerm, setSearchTerm] = useState(''); // State to manage search term for event filtering
-    const [filters, setFilters] = useState({ // State to manage various filters
+    const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({
         category: '',
         startDate: '',
         endDate: '',
@@ -19,50 +19,56 @@ const Events = () => {
         maxPrice: ''
     });
 
-    const navigate = useNavigate(); // Initialize useNavigate hook for navigation
-    const location = useLocation(); // Hook to access location object for navigation state
-    const { logout } = useAuth(); // Access logout function from AuthContext
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { logout } = useAuth();
 
-    // Fetch data from API on initial component mount or when navigation occurs
+    // Fetch data when component mounts or location changes
     useEffect(() => {
         fetchData();
-    }, [location.key]); // Depend on location.key to refetch data when navigating back from create-event
+    }, [location.key]);
 
-    // Function to fetch event data from API
     const fetchData = () => {
         axios.get('http://localhost:8080/api/events')
             .then(res => {
-                setData(res.data); // Set fetched data to state
-                setFilteredData(res.data); // Initially set filteredData to all data
+                setData(res.data);
+                setFilteredData(res.data);
+                setError(null);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
-                setError('Error fetching data. Please try again later.'); // Handle fetch error
+                setError('Error fetching data. Please try again later.');
             });
     };
 
-    // Effect to apply filters whenever filters state changes
+    // Apply filters and search term when any of them changes
     useEffect(() => {
-        applyFilters();
-    }, [filters]);
+        applyFiltersAndSearch();
+    }, [filters, searchTerm, data]);
 
-    // Function to apply filters to event data
-    const applyFilters = () => {
-        let filtered = [...data]; // Create a copy of original data array
+    const applyFiltersAndSearch = () => {
+        let filtered = [...data];
 
-        // Apply filters based on the filter state
+        // Apply filters
         if (filters.category) {
-            filtered = filtered.filter(event => event.eventCategory === filters.category);
+            filtered = filtered.filter(event => 
+                event.eventCategory.toLowerCase() === filters.category.toLowerCase()
+            );
         }
+
         if (filters.startDate && filters.endDate) {
             filtered = filtered.filter(event =>
                 new Date(event.eventDate) >= new Date(filters.startDate) &&
                 new Date(event.eventDate) <= new Date(filters.endDate)
             );
         }
+
         if (filters.location) {
-            filtered = filtered.filter(event => event.eventLocation.toLowerCase().includes(filters.location.toLowerCase()));
+            filtered = filtered.filter(event => 
+                event.eventLocation.toLowerCase().includes(filters.location.toLowerCase())
+            );
         }
+
         if (filters.minPrice && filters.maxPrice) {
             filtered = filtered.filter(event =>
                 event.eventPrice >= parseFloat(filters.minPrice) &&
@@ -70,29 +76,22 @@ const Events = () => {
             );
         }
 
-        setFilteredData(filtered); // Update filteredData state with filtered array
-    };
-
-    // Handler function for search input change
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value); // Update search term state
-    };
-
-    // Effect to filter data based on search term
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredData(data); // Reset filteredData if search term is empty
-        } else {
-            const filtered = data.filter(event =>
+        // Apply search term
+        if (searchTerm.trim() !== '') {
+            filtered = filtered.filter(event =>
                 event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 event.eventLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 event.eventCategory.toLowerCase().includes(searchTerm.toLowerCase())
             );
-            setFilteredData(filtered); // Update filteredData based on search term
         }
-    }, [searchTerm, data]);
 
-    // Function to clear all filters and search term
+        setFilteredData(filtered);
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
     const clearFilters = () => {
         setFilters({
             category: '',
@@ -102,25 +101,16 @@ const Events = () => {
             minPrice: '',
             maxPrice: ''
         });
-        setSearchTerm(''); // Reset search term state
+        setSearchTerm('');
     };
 
-    // Function to handle create event button click
-    const handleCreateEvent = () => {
-        navigate('/create-event'); // Navigate to EventForm
-    };
-
-    // Function to handle logout and redirect to EventDetails
-    const handleLogout = () => {
-        logout(); // Perform logout logic
-        navigate('/'); // Redirect to EventDetails after logout
-    };
-
-    // Function to fetch and update approval status of an event
     const fetchAndUpdateApprovalStatus = (eventId) => {
-        // Implementation of this function is missing in your code, so please add it as needed.
-        // Example: axios.post(`http://localhost:8080/api/events/${eventId}/approve`)
         console.log(`Update approval status for event ID: ${eventId}`);
+    };
+
+    const base64ToImageUrl = (base64String, mimeType) => {
+        if (!base64String) return '';
+        return `data:${mimeType};base64,${base64String}`;
     };
 
     return (
@@ -133,22 +123,20 @@ const Events = () => {
                     <div className='mb-3 d-flex justify-content-between align-items-center'>
                         <h1 className='text-primary'>Event Finder</h1>
                         <div>
-                            <button className='btn btn-outline-primary me-2' onClick={handleCreateEvent}>Create Event</button>
-                            <button className='btn btn-outline-danger' onClick={handleLogout}>Logout</button>
+                            <button className='btn btn-outline-primary me-2' onClick={() => navigate('/create-event')}>Create Event</button>
+                            <button className='btn btn-outline-danger' onClick={() => { logout(); navigate('/'); }}>Logout</button>
                         </div>
                     </div>
 
-                    {/* Filtering UI */}
+                    <input
+                        type='text'
+                        className='form-control mb-3'
+                        placeholder='Search events...'
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+
                     <div className='row mb-3'>
-                        <div className='col-md-4'>
-                            <input
-                                type='text'
-                                className='form-control'
-                                placeholder='Search...'
-                                value={searchTerm}
-                                onChange={handleSearch}
-                            />
-                        </div>
                         <div className='col-md-2'>
                             <input
                                 type='text'
@@ -210,7 +198,7 @@ const Events = () => {
                             <div key={index} className='col'>
                                 <div className='card'>
                                     <img
-                                        src={`data:${event.imageMimeType};base64,${event.eventImage}`}
+                                        src={base64ToImageUrl(event.eventImage, event.imageMimeType)}
                                         className='card-img-top'
                                         alt={event.eventName}
                                     />
@@ -231,7 +219,7 @@ const Events = () => {
                     </div>
 
                     <div className='mt-3'>
-                        <button className='btn btn-secondary me-2' onClick={clearFilters}>Clear Filters</button>
+                        <button className='btn btn-secondary' onClick={clearFilters}>Clear Filters</button>
                     </div>
                 </div>
             </div>

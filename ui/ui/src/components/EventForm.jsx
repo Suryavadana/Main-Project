@@ -12,10 +12,10 @@ const EventForm = () => {
         description: '',
         eventCategory: '',
         eventPrice: '',
-        eventImage: null // File input for image upload
+        eventImage: null
     });
 
-    const [error, setError] = useState(null); // To handle any errors
+    const [error, setError] = useState(null);
     const navigate = useNavigate(); // Hook for navigation
 
     // Handle text and file input changes
@@ -62,7 +62,13 @@ const EventForm = () => {
             <div className='card shadow-sm'>
                 <div className='card-body'>
                     {error && <div className="alert alert-danger">{error}</div>}
-                    <h1 className='text-primary'>Create New Event</h1>
+                    <button
+                        className='btn btn-secondary mb-3'
+                        onClick={() => navigate('/events')}
+                    >
+                        Back to Events
+                    </button>
+                    <h1 className='text-primary mb-4'>Create New Event</h1>
                     <form onSubmit={handleSubmit}>
                         <div className='mb-3'>
                             <label className='form-label'>Event Name</label>

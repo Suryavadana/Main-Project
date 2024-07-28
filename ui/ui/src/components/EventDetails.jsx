@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/EventDetails.css';
 import { Link } from 'react-router-dom';
 
 const EventDetails = () => {
@@ -28,7 +27,7 @@ const EventDetails = () => {
                 console.log('Fetched data:', res.data);
                 setData(res.data);
                 setFilteredData(res.data);
-                setError(null); // Clear any previous error on successful fetch
+                setError(null);
             })
             .catch(err => {
                 console.error('Error fetching data:', err);
@@ -37,14 +36,15 @@ const EventDetails = () => {
     };
 
     useEffect(() => {
-        applyFilters();
-    }, [filters]);
+        applyFiltersAndSearch();
+    }, [filters, searchTerm, data]);
 
-    const applyFilters = () => {
+    const applyFiltersAndSearch = () => {
         let filtered = [...data];
 
+        // Apply filters
         if (filters.category) {
-            filtered = filtered.filter(event => event.eventCategory === filters.category);
+            filtered = filtered.filter(event => event.eventCategory.toLowerCase() === filters.category.toLowerCase());
         }
 
         if (filters.startDate && filters.endDate) {
@@ -65,25 +65,21 @@ const EventDetails = () => {
             );
         }
 
+        // Apply search term
+        if (searchTerm.trim() !== '') {
+            filtered = filtered.filter(event =>
+                event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                event.eventLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                event.eventCategory.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
         setFilteredData(filtered);
     };
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
-
-    useEffect(() => {
-        if (searchTerm.trim() === '') {
-            setFilteredData(data);
-        } else {
-            const filtered = data.filter(event =>
-                event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                event.eventLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                event.eventCategory.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setFilteredData(filtered);
-        }
-    }, [searchTerm, data]);
 
     const clearFilters = () => {
         setFilters({
@@ -131,7 +127,9 @@ const EventDetails = () => {
                         <h1 className='text-primary'>Event Finder</h1>
                         <div>
                             <Link to="/login" className='btn btn-outline-primary me-2'>Login</Link>
-                            <Link to="/register" className='btn btn-outline-primary'>Register</Link>
+                            <Link to="/register" className='btn btn-outline-primary me-2'>Register</Link>
+                            <Link to="/about" className='btn btn-outline-primary me-2'>About</Link>
+                            <Link to="/contact" className='btn btn-outline-primary'>Contact</Link>
                         </div>
                     </div>
 
@@ -144,7 +142,60 @@ const EventDetails = () => {
                     />
 
                     <div className='row mb-3'>
-                        {/* Filter inputs */}
+                        <div className='col-md-2'>
+                            <input
+                                type='text'
+                                className='form-control form-control-sm'
+                                placeholder='Category'
+                                value={filters.category}
+                                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='date'
+                                className='form-control form-control-sm'
+                                placeholder='Start Date'
+                                value={filters.startDate}
+                                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='date'
+                                className='form-control form-control-sm'
+                                placeholder='End Date'
+                                value={filters.endDate}
+                                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='text'
+                                className='form-control form-control-sm'
+                                placeholder='Location'
+                                value={filters.location}
+                                onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control form-control-sm'
+                                placeholder='Min Price'
+                                value={filters.minPrice}
+                                onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                            />
+                        </div>
+                        <div className='col-md-2'>
+                            <input
+                                type='number'
+                                className='form-control form-control-sm'
+                                placeholder='Max Price'
+                                value={filters.maxPrice}
+                                onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                            />
+                        </div>
                     </div>
 
                     <div className='row row-cols-1 row-cols-md-2 g-4'>
@@ -172,7 +223,6 @@ const EventDetails = () => {
 
                     <div className='mt-3'>
                         <button className='btn btn-secondary me-2' onClick={clearFilters}>Clear Filters</button>
-                        {/* Additional filters components */}
                     </div>
                 </div>
             </div>
